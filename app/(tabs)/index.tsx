@@ -5,6 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 // Import the functions you need from the SDKs you need
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,13 +15,13 @@ import '../../firebase.js';
 const {firebaseConfig} = require('../../firebase.js');
 
 // Initialize Firebase
-
 const app = initializeApp(firebaseConfig);
 
 
 
 export default function HomeScreen() {
-  
+
+const auth = getAuth(app);
 const [loginout, setloginout] = useState('Login');
 const [created, setCreate] = useState('create');
 const [pword, setPword] = useState('password');
@@ -36,8 +38,21 @@ async function debug(tag: String, str: String) {
 function loginA() {
   setEmail(email);
   setPword(pword);
-    debug("loginA", "login: " + email + " password: " + pword + "success");   
-}
+    debug("loginA", "login: " + email + " password: " + pword + "success");
+    signInWithEmailAndPassword(auth, email, pword)
+    .then((userCredential) => {
+      //signned in
+      const user = userCredential.user;
+      debug("signInWithEmailAndPassword", "success: " + user.email);
+      setloginout('login:' + user.email);
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      
+      debug("signInWithEmailAndPassword", "error: " + errorCode + " message: " + errorMessage);
+    }
+};
 
 
 function createA() {
